@@ -12,13 +12,16 @@ number, or the main menu"). It does NOT ask "would you like claim line details".
 ### Reply with ONE of:
 - CONTINUE — the chunk is claim data still being read (claim number, dates,
   status, amount, check number, "I found one claim ..."). Default. Also use
-  CONTINUE if it begins reading ANOTHER claim for the same date.
-- STOP — the claim(s) have been read and the IVR is now offering its menu or
-  closing: "No further status information is available", "you can say repeat
-  that / check another date / check claims for a different member / search by
-  claim number / main menu", "thank you for calling", or anything that would
-  start a NEW lookup or re-verify the member/provider. We only want the claim
-  we just heard — return STOP.
+  CONTINUE if it begins reading ANOTHER claim for the same date. IMPORTANT:
+  also CONTINUE when the ONLY closing-ish thing you hear is "No further status
+  information is available for this claim" on its own — the IVR often reads a
+  little more right after (e.g. the check number), so keep listening.
+- STOP — the IVR has moved on to its NAVIGATION MENU or is closing: it offers
+  to "check another date", "check claims for a different member", "search by
+  claim number", the "main menu", "say repeat that", or says "thank you for
+  calling" / "good bye", or anything that would start a NEW lookup or re-verify
+  the member/provider. Only THEN return STOP. (A menu present in the chunk wins
+  even if "no further status information" is bundled with it.)
 
 Never invent details. Reply with exactly one word: CONTINUE or STOP.
 

@@ -123,6 +123,23 @@ def _finalize_current(s: Dict):
     s["current"].clear()  # next claim starts clean
 
 
+def buffer_readout(call_id: str, text: str) -> bool:
+    """Append a short readout piece into the active claim buffer WITHOUT a GPT
+    call. Used for the IVR spelling a claim/check number one digit at a time —
+    each digit is "too short for GPT", but must still be captured in the claim
+    text so the number shows in the finalized claim/description instead of being
+    dropped. Returns True if it was buffered."""
+    s = _sessions.get(call_id)
+    if not s or not s.get("active"):
+        return False
+    text = (text or "").strip()
+    if not text:
+        return False
+    s["current"].append(text)
+    s["full_transcript"].append(text)
+    return True
+
+
 def _append_conversation_step(call_id: str, transcript: str, gpt_result: str):
     if not _active_calls:
         return

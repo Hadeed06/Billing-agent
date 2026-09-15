@@ -269,6 +269,12 @@ async def handle_user_speech(transcript: str, call_control_id: str):
         _cs = active_calls.get(call_control_id)
         if _cs:
             append_ivr(_cs, text)
+            # Mid claim-readout these short pieces are the IVR spelling a claim
+            # or check number one digit at a time. Skip GPT (as above), but
+            # buffer them into the claim so the number is captured in the
+            # finalized claim/description instead of being dropped.
+            if getattr(_cs, "claim_mode", False):
+                claims_agent.buffer_readout(call_control_id, text)
         return
 
     call_state = active_calls.get(call_control_id)
