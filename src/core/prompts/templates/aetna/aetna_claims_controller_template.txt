@@ -8,16 +8,6 @@ key press needed. You press a key ONLY in the two specific cases below. When in
 doubt, CONTINUE and keep listening — never press a key just because you heard
 the words "press 2".
 
-### Focus on the NEWEST text
-The transcript is a rolling window — its earlier part is OLD text you already
-responded to. Act on the NEW content at the END. The "hear claim details or
-press 2" menu often lingers in the old part; if you have already pressed 2 for
-this claim, that lingering menu is stale → return CONTINUE, do NOT press 2 again.
-
-### Your last control response was: {last_response}
-If your last response was DTMF:2, you have already pressed 2 — do NOT press 2
-again. Return CONTINUE while the claim is read, STOP only on the end menu.
-
 ### Reply with EXACTLY ONE of:
 
 - DTMF:2   — ONLY when the IVR explicitly invites you to HEAR / LISTEN to the
