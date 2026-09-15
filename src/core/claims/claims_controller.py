@@ -153,6 +153,18 @@ async def handle_final(call_id: str, utterance: str):
 
         if intent.startswith("DTMF:"):
             digit = intent.split(":", 1)[1]
+            # Aetna: pressing 2 hears the claim details — needed only ONCE per
+            # claim. The "hear claim details or press 2" menu lingers in the
+            # rolling transcript window, so GPT can re-emit DTMF:2 on that stale
+            # text. Latch it: press 2 once, then convert any repeat to CONTINUE.
+            if digit == "2" and insurance_name.upper() == "AETNA":
+                if s.get("aetna_details_pressed"):
+                    logger.info(
+                        f"[{call_id}] ⏭️ Aetna: already pressed 2 for details this "
+                        f"claim; ignoring repeat")
+                    s["last_response"] = "CONTINUE"
+                    return
+                s["aetna_details_pressed"] = True
             if claims_agent._dtmf_cb:
                 try:
                     await claims_agent._dtmf_cb(digit, call_id)
