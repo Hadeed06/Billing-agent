@@ -7,7 +7,7 @@ _CLAIMS_PROMPT_FILES = {
     "OSCAR_CLAIMS_CONTROLLER_TEMPLATE": "oscar/oscar_claims_controller_template",
     "HEALTH_FIRST_CLAIMS_CONTROLLER_TEMPLATE": "health_first/health_first_claims_controller_template",
     "UHC_CLAIMS_CONTROLLER_TEMPLATE": "uhc/uhc_claims_controller_template",
-    "AETNA_CLAIMS_CONTROLLER_TEMPLATE": "aetna/aetna_claims_controller_template",
+    "MOLINA_CLAIMS_CONTROLLER_TEMPLATE": "molina/molina_claims_controller_template",
     "BCBS_CLAIMS_CONTROLLER_TEMPLATE": "bcbs/bcbs_claims_controller_template",   # shared default / fallback
     # BCBS per-OPERATOR claims controllers (mirror the navigation prompts above).
     "BCBS_HORIZON_CLAIMS_CONTROLLER_TEMPLATE":      "bcbs/bcbs_horizon_claims_controller_template",

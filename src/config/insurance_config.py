@@ -26,8 +26,8 @@ class InsuranceConfig:
 
     # When True, suppress an IDENTICAL DTMF press repeated within a short window
     # (see _DTMF_DEDUPE_WINDOW_S in main.py). Handles a menu the IVR speaks in two
-    # STT chunks, which makes GPT answer the SAME menu twice. Opt-in per insurer
-    # so working payers are unaffected.
+    # STT chunks, which makes GPT answer the SAME menu twice (e.g. Molina's
+    # service line). Opt-in per insurer so working payers are unaffected.
     dedupe_dtmf: bool = False
 
     # ── denial follow-up (in-call pivot) ────────────────────────────────────
@@ -177,26 +177,26 @@ INSURANCE_CONFIGS: Dict[str, InsuranceConfig] = {
         auto_hangup_seconds=1200,
     ),
 
-    # Aetna — reached via payer_id 60054. All-keypad IVR (like Oscar): NPI,
-    # menu selections, Aetna member ID, DOB (mmddyyyy), DOS (mmddyyyy) and every
-    # confirmation (press 1=yes / 2=no) are entered on the KEYPAD, so the prompt
-    # uses dtmf: throughout. After it reads the one-line claim summary it offers
-    # "Hear claim details or press 2" — the claims controller presses 2 to get
-    # the full payment breakdown, then stops.
-    "AETNA": InsuranceConfig(
-        name="AETNA",
-        phone_number="+18006240756",  # Aetna provider claim-status line (800-624-0756)
-        debounce_seconds=0.3,
-        claim_debounce_seconds=1.4,
-        claims_tail_chars=300,
-        prompt_template="AETNA_PROMPT_TEMPLATE",
-        claims_prompt_template="AETNA_CLAIMS_CONTROLLER_TEMPLATE",
+    # Molina Healthcare of Nevada — Medicaid provider claim-status line, reached
+    # via payer_id 20149. Hybrid IVR: spoken menu choices (Medicaid → Claim
+    # status → search by date of service) but every ID is entered on the KEYPAD
+    # (provider NPI, member ID, DOB mmddyyyy, DOS mmddyyyy). The prompt therefore
+    # uses dtmf: for IDs and say: for menu navigation. No spoken member IDs, so
+    # no alphanumeric-fidelity handling is needed.
+    "MOLINA": InsuranceConfig(
+        name="MOLINA",
+        phone_number="+18336852103",
+        debounce_seconds=0.6,
+        claim_debounce_seconds=1.2,
+        claims_tail_chars=250,
+        prompt_template="MOLINA_PROMPT_TEMPLATE",
+        claims_prompt_template="MOLINA_CLAIMS_CONTROLLER_TEMPLATE",
         segmentation_silence_ms=1100,
-        claim_segmentation_silence_ms=1350,
+        claim_segmentation_silence_ms=1300,
         auto_hangup_seconds=1200,
-        # Aetna is all-keypad and presses 1 for the menu + confirmations, so a menu
-        # split into two STT chunks causes a duplicate press. Suppress it. Aetna
-        # only; other payers keep the default.
+        # Molina speaks its service menu in two STT chunks, so GPT answered the
+        # same menu twice (dtmf:1, dtmf:1) — suppress the duplicate press. Molina
+        # only; every other payer keeps the default (no DTMF dedupe).
         dedupe_dtmf=True,
     ),
 
@@ -243,7 +243,7 @@ PAYER_ID_TO_INSURANCE: Dict[str, str] = {
     "94999": "BAYLOR_SCOTT",
     "OSCAR": "OSCAR",
     "87726": "UHC",
-    "60054": "AETNA",
+    "20149": "MOLINA",   # Molina Healthcare of Nevada (Medicaid)
     # BCBS — every state plan routes to the SAME "BCBS" prompt; the phone number
     # to dial is chosen per payer_id in BCBS_PAYER_ID_TO_NUMBER below.
     # Enabled BCBS state plans (5). AZ (53589), TX (TXBLS), IL (00621) are NOT
