@@ -3,46 +3,50 @@ IVR has started reading the claim. Read each transcript chunk and reply with ONE
 keyword. Your job: hear the WHOLE claim, then stop only when the IVR is clearly
 done and gives you an end-of-claim menu.
 
-### How Aetna reads a claim
-1. SUMMARY: "I found one claim ... submitted amount is $... claim number is ...
-   Say repeat that or press 1, HEAR CLAIM DETAILS or press 2, more choices or
-   press 3." Aetna may also offer to FAX the info. Ignore fax; press 2 to hear
-   the details.
-2. DETAILS (stream, may span several chunks): "completed on ..., allowable
-   amount $..., total paid ..., copayment ..., patient responsibility ..., EFT
-   trace number ...". It may also ask you to "say or enter the fax number".
-   Keep listening through ALL of this — do not stop mid-details.
-3. END-OF-CLAIM MENU: after the details, Aetna gives a multi-option menu such as
-   "say repeat or press 1, to hear a different/another claim press 2, for more
-   options press 3, or if you're done you can hang up / end the call / good bye".
-   THIS is your stop signal.
+Aetna often reads the claim summary and then the details AUTOMATICALLY, with no
+key press needed. You press a key ONLY in the two specific cases below. When in
+doubt, CONTINUE and keep listening — never press a key just because you heard
+the words "press 2".
 
 ### Your last control response was: {last_response}
-If your last response was DTMF:2, you have ALREADY pressed 2 and the details are
-now being read (or Aetna is just re-reading the menu). Do NOT press 2 again —
-return CONTINUE while details stream, and STOP only on the end-of-claim menu.
+If your last response was DTMF:2, you have already pressed 2 — do NOT press 2
+again. Return CONTINUE while the claim is read, STOP only on the end menu.
 
 ### Reply with EXACTLY ONE of:
-- DTMF:2   — ONLY when the IVR offers to HEAR CLAIM DETAILS ("hear claim details
-             or press 2") in the summary AND you have not already pressed 2 (your
-             last response was not DTMF:2). Return the literal text DTMF:2.
-- STOP     — ONLY when you see the END-OF-CLAIM MENU: the IVR offers to hear a
-             DIFFERENT / ANOTHER claim, or go to the MAIN MENU / MORE OPTIONS,
-             or to HANG UP / END THE CALL / "good bye". We have the whole claim.
-- CONTINUE — everything else: the summary or details are still being read (amounts,
-             claim number, allowable, paid, patient responsibility, EFT), OR the
-             IVR is offering / asking about a FAX ("have it faxed", "say fax it or
-             press 2", "say or enter the fax number"). Keep listening.
 
-Rules:
-- Do NOT STOP just because details were read. Only STOP on the end-of-claim menu
-  that offers another claim / main menu / more options / hang up / end the call.
-- NEVER press any key for a FAX ("have it faxed", "fax it", "enter the fax
-  number") → CONTINUE and ignore it.
-- Press 2 (DTMF:2) ONLY for the explicit "hear claim details" offer.
-- "say repeat or press 1, more choices or press 3" WITHOUT an option to hear
-  another claim / end the call is NOT the end menu → CONTINUE.
-- Never invent details. Reply with exactly one token: DTMF:2, STOP, or CONTINUE.
+- DTMF:2   — ONLY when the IVR explicitly invites you to HEAR / LISTEN to the
+             claim details by pressing 2. The chunk must contain a HEAR-details
+             invitation such as "hear claim details or press 2", "to hear the
+             claim details press 2", "listen to the details press 2".
+             This is the ONLY situation where you press 2.
+
+- STOP     — ONLY on the END-OF-CLAIM MENU: the IVR offers to hear a DIFFERENT /
+             ANOTHER claim, go to MAIN MENU / MORE OPTIONS, or HANG UP / END THE
+             CALL / say "good bye". We have the whole claim.
+
+- CONTINUE — EVERYTHING else. In particular:
+             * the reference number / claim summary is being read (reference
+               number, claim number, submitted amount, "received on", "has been
+               completed") — this is NOT an invitation to press anything.
+             * the claim DETAILS are streaming (allowable, paid, copayment,
+               patient responsibility, EFT trace number, amounts, dates).
+             * the "press 2" you hear is a FAX, not a hear-details invite —
+               "have it faxed or press 2", "say fax it or press 2", "for
+               additional service level details say fax it or press 2", "say or
+               enter the fax number". Faxing is NEVER wanted.
+
+### Hard rules (do not break)
+- NEVER press 2 for a FAX. "fax", "have it faxed", "fax it", "fax number",
+  "fax of service level details" → CONTINUE, even though the words "press 2"
+  appear right next to it.
+- The claim summary alone (reference/claim number, submitted amount, "received
+  on / completed") is NEVER a reason to press 2. If the chunk has no explicit
+  "hear ... details ... press 2" invite → CONTINUE.
+- Press 2 (DTMF:2) requires the word HEAR (or listen) together with DETAILS and
+  press 2. "details ... fax it or press 2" is a FAX, not a hear invite → CONTINUE.
+- Do NOT STOP just because details were read — STOP only on the end-of-claim menu
+  (another claim / main menu / more options / hang up / good bye).
+- Reply with exactly one token: DTMF:2, STOP, or CONTINUE. Never invent details.
 
 TRANSCRIPT: """{transcript_chunk}"""
 
