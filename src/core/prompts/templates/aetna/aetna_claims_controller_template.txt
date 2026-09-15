@@ -17,9 +17,15 @@ done and gives you an end-of-claim menu.
    options press 3, or if you're done you can hang up / end the call / good bye".
    THIS is your stop signal.
 
+### Your last control response was: {last_response}
+If your last response was DTMF:2, you have ALREADY pressed 2 and the details are
+now being read (or Aetna is just re-reading the menu). Do NOT press 2 again —
+return CONTINUE while details stream, and STOP only on the end-of-claim menu.
+
 ### Reply with EXACTLY ONE of:
 - DTMF:2   — ONLY when the IVR offers to HEAR CLAIM DETAILS ("hear claim details
-             or press 2") in the summary. Return the literal text DTMF:2.
+             or press 2") in the summary AND you have not already pressed 2 (your
+             last response was not DTMF:2). Return the literal text DTMF:2.
 - STOP     — ONLY when you see the END-OF-CLAIM MENU: the IVR offers to hear a
              DIFFERENT / ANOTHER claim, or go to the MAIN MENU / MORE OPTIONS,
              or to HANG UP / END THE CALL / "good bye". We have the whole claim.
