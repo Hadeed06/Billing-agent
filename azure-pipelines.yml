@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - refactor
+  paths:
+    exclude:
+      - 'azure-pipelines.yml'
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  # ACR repo inside your registry
+  acr_repo: pehr-ai-billing-agent
+
+stages:
+  - stage: Build_Docker_Image_Stage
+    displayName: Build and Push Docker Image
+    jobs:
+      - job: Build_and_Push
+        displayName: Build and Push to ACR
+        steps:
+          - task: Docker@2
+            displayName: Build and Push Docker Image
+            inputs:
+              containerRegistry: 'SvcConn-DockerRegistry-2026'
+              repository: $(acr_repo)
+              command: 'buildAndPush'
+              Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+              arguments: '--build-arg GIT_COMMIT=$(Build.SourceVersion)'
+              tags: |
+                $(Build.SourceBranchName)-latest

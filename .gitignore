@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+# Virtual environment
+.venv/
+venv/
+# Environment variables
+.env
+# Test files
+test.py
+test_cigna_prompt.py
+
+.env.qa
+.env.prod
+config.json
+test_denial_prompts.py
+
+# Secrets must never be committed — provide via Railway env vars
+src/secrets/
+*.env
+.env
+.env.qa
+.env.prod
