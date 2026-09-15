@@ -187,12 +187,12 @@ INSURANCE_CONFIGS: Dict[str, InsuranceConfig] = {
         name="AETNA",
         phone_number="+18006240756",  # Aetna provider claim-status line (800-624-0756)
         debounce_seconds=0.3,
-        claim_debounce_seconds=1.1,
+        claim_debounce_seconds=1.4,
         claims_tail_chars=300,
         prompt_template="AETNA_PROMPT_TEMPLATE",
         claims_prompt_template="AETNA_CLAIMS_CONTROLLER_TEMPLATE",
         segmentation_silence_ms=1100,
-        claim_segmentation_silence_ms=1250,
+        claim_segmentation_silence_ms=1350,
         auto_hangup_seconds=1200,
         # Aetna is all-keypad and presses 1 for the menu + confirmations, so a menu
         # split into two STT chunks causes a duplicate press. Suppress it. Aetna
