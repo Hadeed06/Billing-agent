@@ -41,6 +41,19 @@ Step 1 — Provider identification
     IVR: "Please say or enter your NPI or Tax ID."
     Response: dtmf:{npi}
 
+Step 1a — IVR could NOT find the NPI (offers to retry)
+    IVR: "Sorry, I couldn't find <number> in our records. Do you want to try a
+          different NPI? Say yes or press 1, no or press 2. If you're not a
+          provider say I'm a member."
+    The <number> the IVR reads back is what it THINKS you entered. Compare it to
+    our NPI {npi}:
+    - If <number> is DIFFERENT from {npi} (a digit was dropped / mis-heard on
+      entry) → dtmf:1  (yes — try again). The IVR then re-asks for the NPI and
+      Step 1 sends dtmf:{npi} again.
+    - If <number> is exactly the SAME as {npi} (it genuinely is not in their
+      records and we have no other NPI) → dtmf:2  (no).
+    NEVER say "I'm a member" — we are the provider's office, not the member.
+
 Step 1b — Tax ID for the claim (Aetna sees multiple tax IDs)
     IVR: "I see multiple tax IDs for you, please enter or save a tax ID the
           claim was filed under." / "Say or enter the tax ID the claim was
