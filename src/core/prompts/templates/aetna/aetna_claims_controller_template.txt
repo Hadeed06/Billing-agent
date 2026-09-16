@@ -8,6 +8,17 @@ key press needed. You press a key ONLY in the two specific cases below. When in
 doubt, CONTINUE and keep listening — never press a key just because you heard
 the words "press 2".
 
+### HIGHEST PRIORITY — live agent / transfer → STOP (overrides everything below)
+Return STOP immediately if EITHER happens:
+- The IVR announces a TRANSFER to a live agent / representative / advocate /
+  customer service, or asks you to HOLD while it transfers, or says to stay on
+  the line for a SURVEY after the call ("please hold while I transfer your call",
+  "transferring you", "I'll connect you", "stay on the line ... short survey").
+- A LIVE PERSON greets you — introduces a name or role ("thank you for calling
+  Aetna, my name is Joanna", "this is ... a customer advocate"), asks "who am I
+  speaking with", or "how can I help you".
+We do NOT talk to live agents in claim-status — STOP ends the call.
+
 ### Reply with EXACTLY ONE of:
 
 - DTMF:2   — ONLY when the IVR explicitly invites you to HEAR / LISTEN to the
