@@ -43,6 +43,14 @@ def _respond(
     body: dict = {"succeeded": succeeded, "message": message}
     if ref_no is not None:
         body["refNo"] = ref_no
+
+    # Log every non-success response so the reason we rejected a call is visible
+    # in App Insights (the frontend only shows the message; without this the
+    # cause — e.g. a missing Clinical field — is invisible).
+    if not succeeded:
+        level = logging.ERROR if http_status >= 500 else logging.WARNING
+        logger.log(level, f"⛔ Rejecting call (HTTP {http_status}): {message}")
+
     return JSONResponse(body, status_code=http_status)
 
 

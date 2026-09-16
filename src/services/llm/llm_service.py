@@ -1,6 +1,7 @@
 # services/llm_service.py
 from __future__ import annotations
 import os
+import time
 import httpx
 import logging
 import re
@@ -29,6 +30,7 @@ async def _call_gpt_api(prompt: str, max_tokens: int = 50) -> str:
     """
 
     try:
+        t0 = time.perf_counter()
         response = await azure_client.chat.completions.create(
             model=os.getenv("OPENAI_MODEL", "gpt-4.1"),  # Azure deployment name
             messages=[
@@ -47,6 +49,7 @@ async def _call_gpt_api(prompt: str, max_tokens: int = 50) -> str:
 
 
         answer = response.choices[0].message.content or "(no response)"
+        logger.info(f"⏱️ GPT latency: {(time.perf_counter() - t0) * 1000:.0f} ms")
         # Exact per-call token usage from the provider (more accurate than
         # tiktoken — includes message/role overhead). Auto-tagged with the
         # call_id by the logger, so you can sum per call in App Insights.

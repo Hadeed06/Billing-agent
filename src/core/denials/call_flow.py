@@ -13,6 +13,7 @@ execution, turn recording, cleanup, DTMF — are injected once via configure().
 import asyncio
 import logging
 import os
+import re
 import time
 
 from src.core.call_registry import active_calls
@@ -78,6 +79,78 @@ def _is_gpt_rep_mode_signal(response: str) -> bool:
         return False
     compact = response.strip().lower().replace(" ", "").replace("_", "").rstrip(".,!?:;'\"")
     return compact == "repmode"
+
+
+# Phrases a LIVE person says to the CALLER — asking for our name, our callback
+# number, or who they're speaking with — that an automated menu or hold system
+# never says. They never mention the carrier name, so a garbled greeting (STT
+# hearing "Humana" as "amana") still matches.
+_LIVE_HUMAN_CUES = (
+    "your first name",
+    "your last name",
+    "spell your first",
+    "spell your last",
+    "may i have your name",
+    "can i have your name",
+    "may i get your name",
+    "your call back number",
+    "your callback number",
+    "callback number and extension",
+    "call back number and extension",
+    "who am i speaking",
+    "whom am i speaking",
+    "who do i have the pleasure",
+    "may i know your concern",
+    "your concern today",
+)
+
+# If any of these automated hold/transfer/disclaimer phrases is present, the
+# chunk is the system — not a person yet — so do NOT treat it as a greeting.
+_NOT_HUMAN_YET = (
+    "transferring you",
+    "transfer your call",
+    "estimated wait",
+    "wait time",
+    "please hold",
+    "continuing to hold",
+    "reference number",
+)
+
+# A fresh "thank you for calling" opener PAIRED with an ask directed at us catches
+# a human greeting even when STT truncates it before the specific name/callback
+# words (e.g. "...thank you for calling amana this is ... you may i have"). An
+# automated menu never combines a greeting opener with "may I have"/"how may I
+# assist" — it uses "please say or enter".
+_GREETING_OPENERS = ("thank you for calling", "thanks for calling")
+_GREETING_ASKS = (
+    "may i have",
+    "may i know",
+    "how may i",
+    "how can i help you",
+    "how can i assist",
+)
+
+
+def _normalize_for_match(text: str) -> str:
+    """Lowercase, strip punctuation, collapse whitespace — for substring cues."""
+    stripped = re.sub(r"[^a-z0-9 ]+", " ", (text or "").lower())
+    return re.sub(r"\s+", " ", stripped).strip()
+
+
+def looks_like_live_human_greeting(text: str) -> bool:
+    """Deterministic 'a live human has picked up' detector for the denial-IVR phase.
+
+    A typo-proof backup to the LLM's rep_mode signal: fires only on high-precision
+    cues a real person says to the caller, and never on hold/transfer announcements.
+    """
+    norm = _normalize_for_match(text)
+    if not norm or any(x in norm for x in _NOT_HUMAN_YET):
+        return False
+    if any(cue in norm for cue in _LIVE_HUMAN_CUES):
+        return True
+    # Greeting opener + an ask directed at us, in the same chunk.
+    return (any(o in norm for o in _GREETING_OPENERS)
+            and any(a in norm for a in _GREETING_ASKS))
 
 
 async def _hold_watchdog(call_control_id: str):
@@ -332,6 +405,12 @@ async def _handle_denial_speech(text: str, call_control_id: str):
 
 
 async def _handle_denial_speech_locked(text: str, call_state, call_control_id: str):
+    # Log the exact transcript we received so denial rejections/mis-handling are
+    # diagnosable from App Insights (the claim-status path logs this too; the
+    # denial path previously did not, which made the rep-transition bug hard to
+    # trace from a truncated STT partial).
+    logger.info(f"Denial transcript received (phase={call_state.phase}): {text!r}")
+
     if call_state.phase == "denial_rep":
         _mark_rep_activity(call_state)
 
@@ -340,6 +419,15 @@ async def _handle_denial_speech_locked(text: str, call_state, call_control_id: s
     # system + hold — no human yet — and flipping early made the rep template ask
     # denial questions into the hold/reference-number read-out. We STAY in
     # denial_ivr and only switch when a real human greets us (rep_mode below).
+
+    # Deterministic backup to the LLM rep_mode signal: if a live person clearly
+    # greeted us (asked for OUR name / callback / who they're speaking with), flip
+    # to the rep phase NOW so this turn is answered by the rep prompt — even when
+    # STT garbled the greeting and the LLM would have missed it. High-precision
+    # cues only, and never on hold/transfer lines, so it can't flip early.
+    if call_state.phase == "denial_ivr" and looks_like_live_human_greeting(text):
+        logger.info("→ Live-human greeting detected (deterministic) — entering rep phase")
+        _enter_denial_rep_phase(call_state)
 
     # Lock the reason the moment the rep states it, so THIS turn's prompt already
     # carries the reason-specific questions. One-time ~1s cost on the reason turn.

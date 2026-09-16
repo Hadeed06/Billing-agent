@@ -82,13 +82,22 @@ Allowed Response Formats:
    hold music, "we appreciate your patience", partial sentences, silence-filler messages
    → fallback
 
-7. **A LIVE HUMAN has clearly picked up** — a person greets you by name or conversationally
+7. **A LIVE HUMAN has clearly picked up** — a person greets you by name or conversationally,
+   OR asks YOU for your name / callback number / who they're speaking with.
    (e.g. "Thank you for calling Humana, my name is Sarah, how can I help you?",
-   "This is Mark, who am I speaking with?")
+   "This is Mark, who am I speaking with?", "May I have your first name and initial to your
+   last name?", "May I also have your callback number and extension?", "How may I assist you
+   today?")
    → rep_mode
    Return ONLY the exact word rep_mode — nothing else. This switches the call to the
    representative conversation. Menu recordings and hold announcements are NOT a human —
    a human introduces themself or asks you a conversational question.
+   IMPORTANT: a request for YOUR name or callback number is a HUMAN — return rep_mode.
+   Do NOT answer it, and NEVER reply with the member's/patient's name (that is not your
+   name). The speech-to-text may garble the greeting (e.g. "Humana" heard as "amana",
+   "advocate" as "assist") — ignore the mangled carrier/title words; the greeting/question
+   is what matters. When unsure whether a person has greeted you, prefer rep_mode over
+   answering.
 
 8. **The IVR says representatives are unavailable** (office closed, call back later)
    and offers no path to a human → endcall

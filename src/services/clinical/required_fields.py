@@ -14,6 +14,10 @@ REQUIRED_FIELDS_BY_INSURANCE: Dict[str, List[str]] = {
     # UHC's IVR can ask for the provider Tax ID (TIN) in addition to NPI, and
     # verifies the member by name + Member ID + DOB + DOS.
     "UHC":          ["tax_id", "npi", "member_id", "member_name", "dob", "dos"],
+    # Aetna verifies by NPI + Tax ID + Aetna member ID + DOB + DOS, and confirms
+    # the patient NAME back to us ("the patient is <name>, yes/no"). After the NPI
+    # its IVR asks for the tax ID the claim was filed under. All on keypad.
+    "AETNA":        ["tax_id", "npi", "member_id", "member_name", "dob", "dos"],
     # Molina (NV Medicaid) verifies by provider NPI + member ID + DOB + DOS, all
     # entered on the keypad. It does NOT ask for the tax ID. Member name isn't
     # asked by the IVR but is required as useful context in the prompt.

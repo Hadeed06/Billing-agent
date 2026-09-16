@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - feature/molina-claim-status
+      - refactor
   paths:
     exclude:
       - 'azure-pipelines.yml'

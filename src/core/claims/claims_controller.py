@@ -112,12 +112,20 @@ async def handle_final(call_id: str, utterance: str):
         # Full transcript for conversation history (what was actually said)
         full_text = " ".join(s["full_transcript"]).strip()
 
+        # GPT sees a rolling window. After a keypad press (Aetna) we advance the
+        # window start so the menu we just acted on is NOT re-sent — that stops
+        # duplicate presses, and a later claim's menu is still seen fresh so we
+        # can press again for it. window_start_idx stays 0 for insurers that
+        # never press keys, so their chunk is byte-for-byte unchanged.
+        win_start = s.get("window_start_idx", 0)
+        windowed = " ".join(s["full_transcript"][win_start:]).strip()
+
         # This is what GPT should see (trimmed for context window)
         if insurance_name.upper() in ("OSCAR", "HEALTH_FIRST"):
             chunk = utterance
         else:
             tail_chars = get_claims_tail_chars()
-            chunk = full_text[-tail_chars:].strip()
+            chunk = windowed[-tail_chars:].strip()
 
         last_response = s.get("last_response", "")
 
@@ -159,6 +167,14 @@ async def handle_final(call_id: str, utterance: str):
                     logger.info(f"[{call_id}] Sent DTMF: {digit}")
                 except Exception as e:
                     logger.error(f"[{call_id}] Error sending DTMF: {e}")
+            # Aetna: the menu we just pressed on is consumed. Start a FRESH
+            # transcript window so that menu is not re-sent to GPT — this stops
+            # duplicate presses, while still letting a LATER claim's menu be
+            # seen fresh (so multi-claim calls can press again for the next one).
+            if insurance_name.upper() == "AETNA":
+                s["window_start_idx"] = len(s["full_transcript"])
+                logger.info(
+                    f"[{call_id}] Aetna: advanced transcript window after DTMF:{digit}")
             return
 
         if intent == "CHARGE":

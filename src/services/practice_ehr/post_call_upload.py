@@ -28,6 +28,7 @@ from src.services.billing_log.log_client import (
     update_billing_log_row,
 )
 from src.services.practice_ehr.telnyx_recording import fetch_recording_wav
+from src.services.practice_ehr.recording_compress import compress_recording
 from src.services.practice_ehr.transcript_builder import build_transcript_json
 from src.services.practice_ehr.uploader import upload_file
 from src.utils.logging_config import shorten_call_id
@@ -331,6 +332,8 @@ async def _run_upload_call_artifacts(snapshot: dict) -> None:
         result = await fetch_recording_wav(call_session_id, telnyx_api_key)
         if result:
             wav_bytes, duration = result
+            # Shrink long recordings so they don't 413 the doc endpoint (no-op when small).
+            wav_bytes = compress_recording(wav_bytes)
             recording_uuid = str(uuid.uuid4())
             candidate_path = f"{folder}/{recording_uuid}.wav"
             logger.info(

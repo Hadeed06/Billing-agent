@@ -9,6 +9,7 @@ _MAIN_PROMPT_FILES = {
     "OSCAR_PROMPT_TEMPLATE": "oscar/oscar_prompt_template",
     "HEALTH_FIRST_PROMPT_TEMPLATE": "health_first/health_first_prompt_template",
     "UHC_PROMPT_TEMPLATE": "uhc/uhc_prompt_template",
+    "AETNA_PROMPT_TEMPLATE": "aetna/aetna_prompt_template",
     "MOLINA_PROMPT_TEMPLATE": "molina/molina_prompt_template",
     "BCBS_PROMPT_TEMPLATE": "bcbs/bcbs_prompt_template",   # shared default / fallback
     # BCBS per-OPERATOR navigation prompts (payer_ids under one operator share one).
