@@ -193,7 +193,7 @@ INSURANCE_CONFIGS: Dict[str, InsuranceConfig] = {
         claims_prompt_template="AETNA_CLAIMS_CONTROLLER_TEMPLATE",
         segmentation_silence_ms=1100,
         claim_segmentation_silence_ms=1350,
-        auto_hangup_seconds=1200,
+        auto_hangup_seconds=600,   # 10 min cap — claim-status calls run 2-3 min
         # Aetna is all-keypad and presses 1 for the menu + confirmations, so a menu
         # split into two STT chunks causes a duplicate press. Suppress it. Aetna
         # only; other payers keep the default.
@@ -216,7 +216,7 @@ INSURANCE_CONFIGS: Dict[str, InsuranceConfig] = {
         claims_prompt_template="MOLINA_CLAIMS_CONTROLLER_TEMPLATE",
         segmentation_silence_ms=1100,
         claim_segmentation_silence_ms=1300,
-        auto_hangup_seconds=1200,
+        auto_hangup_seconds=600,   # 10 min cap
         # Molina speaks its service menu in two STT chunks, so GPT answered the
         # same menu twice (dtmf:1, dtmf:1) — suppress the duplicate press. Molina
         # only; every other payer keeps the default (no DTMF dedupe).

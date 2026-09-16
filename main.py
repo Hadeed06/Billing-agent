@@ -253,6 +253,20 @@ def _with_member_id_variants(visit_data: dict) -> dict:
     return out
 
 
+def _is_aetna_npi_not_found(text: str) -> bool:
+    """Aetna IVR could not find the provider NPI and is offering to retry
+    (e.g. '...sorry I couldn't find <npi> in our records, try a different NPI...').
+    Aetna-specific — only checked when Aetna is the active insurer."""
+    t = (text or "").lower()
+    if "try a different npi" in t or "try a different n p i" in t:
+        return True
+    not_found = any(p in t for p in (
+        "couldn't find", "could not find", "couldnt find", "can't find",
+        "cant find", "cannot find", "unable to find", "didn't find", "did not find",
+    ))
+    return not_found and ("npi" in t or "n p i" in t)
+
+
 # ─── 1. handle_user_speech: decorate transcript into a full prompt ────────────
 
 async def handle_user_speech(transcript: str, call_control_id: str):
@@ -302,6 +316,26 @@ async def handle_user_speech(transcript: str, call_control_id: str):
 
     # ── claim routing (the only logic in main) ──────────────────────────────
     if call_state:
+        # Aetna: the IVR couldn't find the NPI. A clipped first DTMF tone drops a
+        # digit, so we let the prompt retry (re-enter the NPI). Cap it at 2
+        # retries — on the 3rd "couldn't find" the NPI is genuinely not
+        # recognized, so end the call instead of looping to the auto-hangup.
+        if (not call_state.claim_mode
+                and config_manager.get_insurance_name().upper() == "AETNA"
+                and _is_aetna_npi_not_found(text)):
+            call_state.npi_not_found_count += 1
+            if call_state.npi_not_found_count > 2:
+                logger.warning(
+                    f"Aetna NPI not found {call_state.npi_not_found_count}x — giving up "
+                    f"(NPI not recognized).")
+                await ensure_call_cleanup(
+                    call_control_id, reason="npi not recognized", send_hangup=True)
+                return
+            logger.info(
+                f"Aetna NPI not found (retry {call_state.npi_not_found_count}/2) — "
+                f"re-entering NPI.")
+            # fall through: GPT's prompt returns dtmf:1 and re-enters the NPI
+
         if is_claim_not_found(text):
             logger.info("❌ No claims found for this patient. Ending call.")
             await ensure_call_cleanup(call_control_id, reason="claims: not found", send_hangup=True)

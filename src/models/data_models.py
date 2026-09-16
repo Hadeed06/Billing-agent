@@ -90,6 +90,11 @@ class CallState:
     debounce_seconds: float = None
     need_debounce_reset: bool = False
 
+    # Aetna only: how many times the IVR has said it couldn't find the NPI.
+    # A clipped first DTMF tone drops a digit, so we retry; after 2 retries we
+    # give up (the NPI is genuinely not recognized) instead of looping.
+    npi_not_found_count: int = 0
+
     segmentation_silence_ms: int = None
     need_segmentation_reset: bool = False
 
