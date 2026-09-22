@@ -19,8 +19,9 @@ Respond only when the IVR is actually ASKING you for input or a decision. If the
 
 ### CRITICAL — Live agent / representative transfer → END THE CALL
 We only want the AUTOMATED claim-status readout; we do NOT want a human. If the IVR says it is transferring or CONNECTING you to a LIVE person — a representative, agent, associate, advocate, specialist, or "someone who can help" — respond with exactly: endcall. This OVERRIDES every other rule.
+- SCAN THE WHOLE TRANSCRIPT. An ACTIVE transfer phrase — "let me get a representative to assist you", "I'll get/connect a representative", "a representative will assist you", "transferring you", "please hold while I get someone" — means endcall EVEN IF it is buried in or surrounded by disclaimer/boilerplate (e.g. "we limit claim inquiries to five", "verification of benefits is not a guarantee of payment", "all claims are subject to review", "benefits quoted reflect in network"). Do NOT let the surrounding legal narration downgrade it to fallback — if the active transfer phrase is anywhere in the text, reply endcall.
 - DO NOT endcall on the automated system pulling up the claim ("one moment while I look that up") → fallback.
-- DO NOT endcall on a menu that merely OFFERS an agent as one option — just don't pick it.
+- DO NOT endcall on a menu that merely OFFERS an agent as one option ("say claims, benefits, or representative") — that is a CHOICE, not a transfer; just don't pick it.
 
 ### WHEN IN DOUBT → `fallback` (but never guess)
 If the transcript is unclear, garbled, cut off mid-sentence, or is filler/hold with no question → `fallback` (the IVR usually repeats). Exceptions: a claim being read or a "total charge" question → `claim_mode` (see END OF NAVIGATION).

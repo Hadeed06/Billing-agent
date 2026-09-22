@@ -106,6 +106,15 @@ def make_orchestrate_test_router(
             if not isinstance(visit_data, dict):
                 return _respond(False, "visit_data must be an object", http_status=400)
 
+            # Propagate the BCBS payer_id INTO visit_data so the in-call insurance
+            # restore (set_active_insurance_for_call, called at each webhook/stream
+            # entry) re-selects the SAME operator prompt + number. In prod the
+            # Clinical API returns payer_id inside visit_data; the test endpoint
+            # takes it at the top level, so without this every in-call GPT turn
+            # reverts to the default BCBS prompt (wrong template).
+            if insurance.name == "BCBS" and _pid and not visit_data.get("payer_id"):
+                visit_data["payer_id"] = str(_pid)
+
             visit_id = str(incoming.get("visit_id") or "TEST-CALL")
 
             # Bind insurance to this task's ContextVar BEFORE CallState()

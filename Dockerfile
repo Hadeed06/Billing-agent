@@ -27,4 +27,6 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+# Shell form so ${PORT} (injected by Railway) is expanded at runtime; falls back
+# to 5000 for local/Azure where PORT is not set.
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-5000}

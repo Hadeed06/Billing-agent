@@ -246,12 +246,12 @@ INSURANCE_CONFIGS: Dict[str, InsuranceConfig] = {
         name="BCBS",
         phone_number="+18003552583",  # default/fallback (NJ - Horizon)
         debounce_seconds=0.3,
-        claim_debounce_seconds=1.2,
+        claim_debounce_seconds=0.9,
         claims_tail_chars=250,
         prompt_template="BCBS_PROMPT_TEMPLATE",
         claims_prompt_template="BCBS_CLAIMS_CONTROLLER_TEMPLATE",
         segmentation_silence_ms=1000,
-        claim_segmentation_silence_ms=1500,
+        claim_segmentation_silence_ms=1200,
         auto_hangup_seconds=900,
     ),
 }
