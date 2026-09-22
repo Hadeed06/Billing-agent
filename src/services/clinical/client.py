@@ -65,6 +65,12 @@ def _normalize(api_data: dict) -> dict:
         "provider_name":     api_data.get("renderingProviderName"),
         "practice_name":     api_data.get("practiceName"),
         "practice_address":  api_data.get("practiceAddress"),
+        # Rendering provider's OWN office address + zip (added to the view for the
+        # denial rep, who asks for it to check in/out-of-network status). When
+        # present these are preferred over the practice address; the denial
+        # context falls back to practice_address only if the office one is blank.
+        "provider_address":  api_data.get("renderingProviderOfficeAddress"),
+        "provider_zip":      api_data.get("renderingProviderZipCode"),
         "claim_submit_date": _strip_time(api_data.get("claimSubmitDate")),
     }
 

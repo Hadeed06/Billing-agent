@@ -22,9 +22,11 @@ REQUIRED_FIELDS_BY_INSURANCE: Dict[str, List[str]] = {
     # entered on the keypad. It does NOT ask for the tax ID. Member name isn't
     # asked by the IVR but is required as useful context in the prompt.
     "MOLINA":       ["npi", "member_id", "member_name", "dob", "dos"],
-    # Horizon BCBS (NJ) verifies by NPI (its "provider ID number") + subscriber
-    # (member) ID + DOB + DOS, all entered on the keypad.
-    "BCBS":         ["npi", "member_id", "member_name", "dob", "dos"],
+    # BCBS verifies by NPI ("provider ID number") + subscriber (member) ID + DOB
+    # + DOS. Several BCBS operators (e.g. Florida Blue, Elevance) also ask for the
+    # claim's TOTAL CHARGE to disambiguate — so charge_amount is required up front:
+    # without it the IVR question can't be answered and the call fails mid-flow.
+    "BCBS":         ["npi", "member_id", "member_name", "dob", "dos", "charge_amount"],
 }
 
 

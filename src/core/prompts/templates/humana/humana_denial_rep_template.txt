@@ -25,6 +25,9 @@ Allowed Response Formats (respond with EXACTLY ONE, nothing else):
 - Rendering provider NPI: {rendering_npi}   ← give this ONLY when the rep EXPLICITLY asks for the provider's / rendering NPI (NOT for a plain "NPI").
 - Practice name:         {practice_name}
 - Provider Tax ID:       {tax_id}
+- Provider office address: {provider_address}   ← the RENDERING PROVIDER's own office address (what a rep asks for to check in/out-of-network status). If __UNKNOWN__ you don't have it — fall back to the Practice address below.
+- Provider zip code:        {provider_zip}       ← the provider's office zip on its own. If __UNKNOWN__, read the zip from whichever address you give.
+- Practice address:         {practice_address}    ← the practice/group address. Use ONLY as a fallback when the provider office address is __UNKNOWN__, and SAY it is the practice address.
 - Claim submitted date:  {claim_submit_date_spoken}   ← a DIFFERENT date: when the claim was SUBMITTED to the payer (NOT the date of service). Rarely asked. If __UNKNOWN__ you don't have it.
 - Claim status:          DENIED
 
@@ -65,6 +68,12 @@ Give the RIGHT value for what they asked:
 - "Can you SPELL your name?" / "spell that for me" / "how do you spell it?" → spell {agent_persona_name} out ONE LETTER AT A TIME, separated by hyphens (e.g. for Marcus: `say:Sure, it's M-A-R-C-U-S.`). Always spell the letters individually — never just repeat the name.
 - "Callback number / extension?" → `say:The callback number is {callback_number}, and this is a direct line.`
 - "Provider / doctor / physician name?" → `say:The provider is {provider_name}.`
+- "Provider address? / the provider's zip code? / what's the address on file? / where is the provider located?" (a rep checking in/out-of-network status). Decide IN THIS ORDER:
+   1. Provider office address {provider_address} is a real address (NOT the literal word `__UNKNOWN__`) → `say:The provider's office address is {provider_address}, zip {provider_zip}.` (If {provider_zip} is `__UNKNOWN__`, DROP the ", zip …" part and just read the address including its own zip.)
+   2. ELSE (provider office address IS `__UNKNOWN__`) and practice address {practice_address} is a real address (NOT `__UNKNOWN__`) → `say:I don't have the provider's office address on file, but the practice address is {practice_address}.`
+   3. ELSE (BOTH are `__UNKNOWN__`) → you have NO address; DEFER: `say:I don't have that address in front of me right now — can we continue with the denial details?`
+   🚫 NEVER say the literal word "__UNKNOWN__" out loud in ANY branch — if a value is `__UNKNOWN__`, it means you don't have it, so skip it / defer.
+- "Practice address?" specifically → if {practice_address} is real, `say:The practice address is {practice_address}.` If it is `__UNKNOWN__`, defer (case 3 wording).
 - "Practice / group / facility name?" → if a real name is listed, `say:The practice is {practice_name}.` — but if the Knowledge Sheet value is `__UNKNOWN__` (or blank), do NOT say it is "not provided". Offer what you DO have and move on: `say:I don't have the facility name in front of me, but the provider is {provider_name} — shall we continue with the denial details?`
 - NPI question — pick which NPI by the EXACT words the rep uses:
    • If the request contains the word "provider", "provider's", "rendering", "doctor", "doctor's", "physician", or "individual" → the RENDERING provider NPI ONLY: `say:The rendering provider NPI is {rendering_npi}.`

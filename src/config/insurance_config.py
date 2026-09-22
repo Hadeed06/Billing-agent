@@ -278,6 +278,13 @@ PAYER_ID_TO_INSURANCE: Dict[str, str] = {
     "00241": "BCBS",   # MO - Anthem/Elevance
     "00720": "BCBS",   # MN - BCBS of Minnesota
     "VABLS": "BCBS",   # VA - Anthem/Elevance
+    # ── new BCBS payers ──
+    "834":   "BCBS",   # OH - Anthem            (Elevance operator → reuses prompt)
+    "47198": "BCBS",   # CA - Anthem Blue Cross (Elevance operator → reuses prompt)
+    "2937":  "BCBS",   # OH - Anthem Medicaid   (new operator, default prompt)
+    "00390": "BCBS",   # TN - BCBS Tennessee    (new operator, default prompt)
+    "710":   "BCBS",   # MI - BCBS Michigan     (new operator, default prompt)
+    "SB580": "BCBS",   # FEP - Federal Employee Program (new operator, default prompt)
 }
 
 SUPPORTED_PAYER_IDS_HELP = ", ".join(
@@ -296,6 +303,13 @@ BCBS_PAYER_ID_TO_NUMBER: Dict[str, str] = {
     "00241": "+18885719054",   # MO - Anthem/Elevance
     "00720": "+18002620820",   # MN - BCBS of Minnesota
     "VABLS": "+18005331120",   # VA - Anthem/Elevance
+    # ── new BCBS payers ──
+    "834":   "+18665458991",   # OH - Anthem
+    "47198": "+18009223242",   # CA - Anthem Blue Cross of CA (HMO) — tested working
+    "2937":  "+18449121226",   # OH - Anthem Medicaid
+    "00390": "+18009247141",   # TN - BCBS Tennessee
+    "710":   "+18006762583",   # MI - BCBS Michigan (BlueCard 1-800-676-BLUE)
+    "SB580": "+18008545256",   # FEP - Federal Employee Program
 }
 
 
@@ -318,7 +332,16 @@ BCBS_PAYER_ID_TO_OPERATOR: Dict[str, str] = {
     "FLBLS": "FLORIDA_BLUE",  # FL
     "00241": "ELEVANCE",      # MO   (Anthem/Elevance)
     "VABLS": "ELEVANCE",      # VA   (same operator as MO → same prompt)
+    "834":   "ELEVANCE",      # OH   (Anthem → same Elevance IVR/prompt as MO/VA)
+    "47198": "ELEVANCE",      # CA   (Anthem Blue Cross → Elevance)
     "00720": "BCBS_MN",       # MN
+    # New operators below run on the shared DEFAULT prompt (no entry here = fall
+    # back). Give each its own operator prompt only once a live transcript proves
+    # its IVR differs — then add the files, register them, and map it here:
+    #   2937  → OH Anthem Medicaid   (separate Medicaid IVR)
+    #   00390 → BCBS Tennessee
+    #   710   → BCBS Michigan
+    #   SB580 → BCBS Federal Employee Program (FEP)
     # AZ (53589), TX (TXBLS), IL (00621) intentionally NOT enabled yet.
 }
 

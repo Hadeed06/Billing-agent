@@ -91,6 +91,15 @@ These four are mutually exclusive — exactly one applies. Tie-breakers:
   PAYER is reprocessing it on its own with no provider action needed → inprocess.
 - The word "denied" plus a request for documentation / EOB / records to reconsider
   → denied (provider action required), NOT inprocess.
+- ⚠️ IVR MENU OPTIONS ARE NOT CLAIM STATUS. Many payer IVRs end EACH claim with a
+  navigation menu such as "say repeat that, next claim, file an appeal, stop, or
+  line level information" — those are choices offered for EVERY claim (paid or
+  not). Do NOT treat "file an appeal" / "appeal" / "next claim" / "stop" / "line
+  level information" / "repeat that" as evidence of denial when they appear as a
+  menu list. Treat an appeal/resubmit/documentation instruction as DENIED ONLY
+  when the IVR states it ABOUT THIS CLAIM (e.g. "this claim was denied, you'll need
+  to file an appeal"), never when it is merely one of the listed menu options. If a
+  claim's actual outcome (paid amount / explicit denial) was not read, use unknown.
 - If you cannot place it in 1–3 with confidence, use unknown.
 
 Rules:

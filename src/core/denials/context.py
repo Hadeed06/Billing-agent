@@ -79,10 +79,15 @@ def build_denial_format_kwargs(call_state) -> dict:
     # the provider's individual NPI (only when a rep asks for the provider NPI).
     group_npi = visit_data.get("group_npi") or ""
     rendering_npi = visit_data.get("rendering_npi") or ""
-    # provider_address — Cigna advocates ask for it during verification. Optional
-    # for other payers (their templates don't reference {provider_address}, so
-    # this extra key is harmless there — str.format ignores unused kwargs).
+    # provider_address / provider_zip — the rendering provider's OWN office address
+    # and zip (Clinical: renderingProviderOfficeAddress / renderingProviderZipCode),
+    # which reps ask for to check in/out-of-network status. Preferred when present.
+    # We keep them DISTINCT from the practice address (no silent merge) so the rep
+    # prompt can fall back to the practice address AND say so when the office one is
+    # blank. Env default last, then the __UNKNOWN__ sentinel in the return block.
     provider_address = visit_data.get("provider_address") or os.getenv("DENIAL_TEST_PROVIDER_ADDRESS", "")
+    provider_zip = visit_data.get("provider_zip") or ""
+    practice_address = visit_data.get("practice_address") or ""
     # DOB/DOS as naturally SPOKEN dates ("November 9, 1965") for the rep phase —
     # the raw 8-digit MMDDYYYY reads out as a giant number over Google TTS and
     # confused a live rep. Falls back to the raw value if it isn't a valid date.
@@ -112,6 +117,8 @@ def build_denial_format_kwargs(call_state) -> dict:
         "group_npi": group_npi or "__UNKNOWN__",
         "rendering_npi": rendering_npi or "__UNKNOWN__",
         "provider_address": provider_address or "__UNKNOWN__",
+        "provider_zip": provider_zip or "__UNKNOWN__",
+        "practice_address": practice_address or "__UNKNOWN__",
         # Defaults are the real values, so these work WITHOUT any env vars set.
         # (env can still override per-deployment, but is not required.)
         "agent_persona_name": persona_first,

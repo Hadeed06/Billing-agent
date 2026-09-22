@@ -43,6 +43,7 @@ from src.config.insurance_config import (
     INSURANCE_CONFIGS,
     config_manager,
     set_active_insurance,
+    bcbs_config_for_payer_id,
 )
 from src.services.clinical.required_fields import missing_fields_for
 from src.utils.logging_config import set_call_id, set_visit_context
@@ -90,6 +91,16 @@ def make_orchestrate_test_router(
                     f"Unknown insurance {insurance_name!r}. Options: {', '.join(INSURANCE_CONFIGS)}",
                     http_status=400,
                 )
+
+            # BCBS chooses its operator prompt + dial number by payer_id. Let the
+            # test caller pass a payer_id so a specific BCBS operator (e.g. an
+            # Elevance state) is exercised; without one, BCBS uses its default
+            # prompt + fallback number. Ignored for non-BCBS insurers.
+            if insurance.name == "BCBS":
+                _pid = incoming.get("payer_id") or incoming.get("payerId")
+                if _pid:
+                    insurance = bcbs_config_for_payer_id(insurance, _pid)
+                    logger.info(f"🧪 BCBS test: payer_id={_pid!r} -> prompt={insurance.prompt_template} num={insurance.phone_number}")
 
             visit_data = incoming.get("visit_data") or {}
             if not isinstance(visit_data, dict):
